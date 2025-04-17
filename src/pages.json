@@ -1,0 +1,36 @@
+{
+	"pages": [
+		{
+			"path": "pages/user/index"
+		},
+		{
+			"path": "pages/login/index"
+		}
+	],
+	"globalStyle": {
+		"navigationBarTitleText": "轻令牌",
+		"navigationBarBackgroundColor": "#F0F0F0",
+		"navigationStyle": "custom",
+		"scss": {
+			"preprocessorOptions": {
+				"additionalData": "@import '@/uni.scss';"
+			}
+		}
+	},
+	"tabBar": {
+		"selectedColor": "#b22f33",
+		"backgroundColor": "#FFF",
+		"list": [
+			{
+				"pagePath": "pages/user/index"
+			},
+			{
+				"pagePath": "pages/login/index"
+			}
+		]
+	},
+	"easycom": {
+		"custom": {
+		}
+	}
+}

@@ -1,0 +1,55 @@
+{
+  "app": {
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\H\\.ohos\\config\\default_lightauth_L_NuJg8-7cc52bq7e-rlxqYpc-f4pe5xmC0rk33kilY=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A8E7280D217127D504CD3C724263BCF2195153D98031B7664F7DD5CC582DAA885C7F2F1ACF671",
+          "profile": "C:\\Users\\H\\.ohos\\config\\default_lightauth_L_NuJg8-7cc52bq7e-rlxqYpc-f4pe5xmC0rk33kilY=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\H\\.ohos\\config\\default_lightauth_L_NuJg8-7cc52bq7e-rlxqYpc-f4pe5xmC0rk33kilY=.p12",
+          "storePassword": "0000001A43290607BD4418134E14C6AB8E6B5D476A874D517469645967DD9CEBE95D4D90300F45012C7E"
+        }
+      }
+    ],
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "compatibleSdkVersion": "5.0.4(16)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug",
+      },
+      {
+        "name": "release"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    }
+  ]
+}
