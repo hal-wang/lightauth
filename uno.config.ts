@@ -8,7 +8,7 @@ export default defineConfig({
 	transformers: [transformerAttributify({ ignoreAttributes: ["block"] }), transformerDirectives()],
 	theme: {
 		colors: {
-			primary: "#B22F33",
+			primary: "#307af5",
 			warning: "#f9ae3d",
 			success: "#5ac725",
 			error: "#f56c6c",
