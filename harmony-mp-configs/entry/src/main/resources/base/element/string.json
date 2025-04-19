@@ -1,0 +1,20 @@
+{
+	"string": [
+		{
+			"name": "module_desc",
+			"value": "轻令牌"
+		},
+		{
+			"name": "EntryAbility_desc",
+			"value": "管理企业用户多因子身份认证令牌，支持标准 MFA、2FA 动态口令，兼容 Microsoft Authenticator 和 Google Authenticator，轻松实现安全登录。"
+		},
+		{
+			"name": "EntryAbility_label",
+			"value": "轻令牌"
+		},
+		{
+			"name": "camera_reason",
+			"value": "扫码二维码添加令牌"
+		}
+	]
+}
