@@ -1,19 +1,32 @@
 {
 	"pages": [
 		{
-			"path": "pages/home/index"
+			"path": "pages/home/index",
+			"style": {
+				"buttons": [
+					{
+						"text": "增加"
+					}
+				]
+			}
 		},
 		{
-			"path": "pages/add/index"
+			"path": "pages/add/index",
+			"style": {
+				"navigationBarTitleText": "新增令牌"
+			}
 		},
 		{
-			"path": "pages/edit/index"
+			"path": "pages/edit/index",
+			"style": {
+				"navigationBarTitleText": "编辑令牌"
+			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTitleText": "轻令牌",
-		"navigationBarBackgroundColor": "#F0F0F0",
-		"navigationStyle": "custom",
+		"navigationBarBackgroundColor": "#ffffff",
+		"backgroundColor": "#f3f4f6",
 		"scss": {
 			"preprocessorOptions": {
 				"additionalData": "@import '@/uni.scss';"

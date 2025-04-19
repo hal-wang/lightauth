@@ -1,16 +1,23 @@
 <template>
-	<div class="flex flex-col w-full h-full">
-		<uni-nav-bar left-icon="left" title="编辑令牌" status-bar :border="false" @click-left="navigateBack" />
-
-		<div class="flex-1 h-0 p-3 overflow-y-auto">
-			<div class="bg-white rounded-lg px-3 py-4">
-				<div class="pb-1">账号名</div>
-				<uni-easyinput v-model="editForm.label" placeholder="输入账号名"></uni-easyinput>
-				<div class="pt-4 pb-1">提供商</div>
-				<uni-easyinput v-model="editForm.issuer" placeholder="输入提供商（可选）"></uni-easyinput>
-				<div class="h-4"></div>
-				<button class="bg-primary text-white text-base py-2" @click="handleEdit">编辑完成</button>
+	<div class="pr-3 pt-3 flex justify-end">
+		<button class="bg-white rounded-full text-red text-base py-2 px-6 h-auto" @click="handleDelete">
+			<div class="flex items-center">
+				<uni-icons type="trash" color="f87171" />
+				<div class="pl-2">删除</div>
 			</div>
+		</button>
+	</div>
+	<div class="p-3">
+		<div class="bg-white rounded-lg px-3 py-4">
+			<div class="pb-1">账号名</div>
+			<uni-easyinput v-model="editForm.label" placeholder="输入账号名"></uni-easyinput>
+			<div class="pt-4 pb-1">提供商</div>
+			<uni-easyinput v-model="editForm.issuer" placeholder="输入提供商（可选）"></uni-easyinput>
+			<div class="h-4"></div>
+			<button class="bg-primary text-white text-base py-2" @click="handleEdit">
+				<uni-icons type="checkmarkempty" color="307af5 " />
+				<div class="pl-2">编辑完成</div>
+			</button>
 		</div>
 	</div>
 </template>
@@ -60,5 +67,20 @@
 		editItem.totp.issuer = editForm.issuer;
 		save();
 		uni.navigateBack();
+	}
+
+	function handleDelete() {
+		if (!editItem) return;
+
+		uni.showModal({
+			title: "确认删除",
+			content: `即将删除令牌 ${editItem.totp.label}，该操作不可恢复，确认继续？`,
+			success: (res) => {
+				if (!res.confirm) return;
+
+				list.splice(list.indexOf(editItem!), 1);
+				navigateBack();
+			},
+		});
 	}
 </script>
