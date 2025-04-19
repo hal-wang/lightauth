@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "pages/add/index"
+		},
+		{
+			"path": "pages/edit/index"
 		}
 	],
 	"globalStyle": {

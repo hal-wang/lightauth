@@ -1,7 +1,7 @@
 import { reactive } from "vue";
 import * as OTPAuth from "otpauth";
 
-interface TotpItem {
+export interface TotpItem {
 	totp: OTPAuth.HOTP | OTPAuth.TOTP;
 	token: string;
 	remaining: number;

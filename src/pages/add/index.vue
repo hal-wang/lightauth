@@ -1,6 +1,6 @@
 <template>
 	<div class="flex flex-col w-full h-full">
-		<uni-nav-bar left-icon="left" title="新增令牌" status-bar :border="false" @click-left="onBack" />
+		<uni-nav-bar left-icon="left" title="新增令牌" status-bar :border="false" @click-left="navigateBack" />
 
 		<div class="flex-1 h-0 p-3 overflow-y-auto flex flex-col space-y-3">
 			<div class="bg-white rounded-lg">
@@ -34,7 +34,7 @@
 	import { reactive } from "vue";
 	import * as OTPAuth from "otpauth";
 
-	function onBack() {
+	function navigateBack() {
 		uni.navigateBack();
 	}
 
@@ -107,7 +107,6 @@
 
 	function onAddFinished() {
 		save();
-		uni.$emit("add");
 		uni.navigateBack();
 	}
 </script>
