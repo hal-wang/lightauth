@@ -34,6 +34,20 @@
 				versionCode: 10006300,
 			},
 		],
+		metadata: [
+			{
+				name: "appgallery_privacy_hosted",
+				value: "1",
+			},
+			{
+				name: "app_id",
+				value: "6917570445314904193",
+			},
+			{
+				name: "client_id",
+				value: "6917570445314904193",
+			},
+		],
 		requestPermissions: [
 			{
 				name: "ohos.permission.CAMERA",
