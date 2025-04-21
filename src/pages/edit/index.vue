@@ -1,6 +1,12 @@
 <template>
-	<div class="pr-3 pt-3 flex justify-end">
-		<button class="bg-white rounded-full text-red text-base py-2 px-6 h-auto" @click="handleDelete">
+	<div class="options">
+		<!-- <button class="text-primary" @click="handleExport">
+			<div class="flex items-center">
+				<uni-icons type="redo" color="307af5 " />
+				<div class="pl-2">导出</div>
+			</div>
+		</button> -->
+		<button class="text-red" @click="handleDelete">
 			<div class="flex items-center">
 				<uni-icons type="trash" color="f87171" />
 				<div class="pl-2">删除</div>
@@ -11,9 +17,9 @@
 		<div class="bg-white rounded-lg px-3 py-4">
 			<div class="pb-1">账号名</div>
 			<uni-easyinput v-model="editForm.label" placeholder="输入账号名"></uni-easyinput>
-			<div class="pt-4 pb-1">提供商</div>
+			<div class="pt-5 pb-1">提供商</div>
 			<uni-easyinput v-model="editForm.issuer" placeholder="输入提供商（可选）"></uni-easyinput>
-			<div class="h-4"></div>
+			<div class="h-5"></div>
 			<button class="bg-primary text-white text-base py-2" @click="handleEdit">
 				<uni-icons type="checkmarkempty" color="307af5 " />
 				<div class="pl-2">编辑完成</div>
@@ -83,4 +89,25 @@
 			},
 		});
 	}
+
+	// function handleExport() {
+	// 	if (!editItem) return;
+
+	// 	const fs = uni.getFileSystemManager();
+	// 	fs.writeFileSync("/test.la", editItem.totp.toString());
+	// 	fs.saveFileSync("/test.la");
+	// 	uni.showToast({
+	// 		title: "2fs: " + !!fs,
+	// 	});
+	// }
 </script>
+
+<style lang="scss" scoped>
+	.options {
+		@apply flex flex-wrap justify-end;
+
+		button {
+			@apply bg-white rounded-full text-base py-2 px-5 h-auto mr-3 mt-3;
+		}
+	}
+</style>
