@@ -1,9 +1,11 @@
 import { authentication } from '@kit.AccountKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { ImmersiveMode, router } from '@kit.ArkUI';
+import { router } from '@kit.ArkUI';
 import { SymbolGlyphModifier, CustomContentDialog } from '@kit.ArkUI';
 import { scanBarcode, scanCore } from '@kit.ScanKit';
+import { storage } from '../utils/storage'
+import { TOTP, URI } from "../utils/otpauth";
 
 const DOMAIN = 0x0000;
 
@@ -11,7 +13,7 @@ const DOMAIN = 0x0000;
 @Component
 struct AddDialog {
   controller?: CustomDialogController
-  success: (val: string) => void = (val: string) => {
+  success: (val: TOTP) => void = (val: TOTP) => {
   }
   @State input: string = ''
   inputDialogController: CustomDialogController | null = new CustomDialogController({
@@ -26,7 +28,10 @@ struct AddDialog {
           value: '确定',
           buttonStyle: ButtonStyleMode.TEXTUAL,
           action: () => {
-            this.success(this.input)
+            this.success(new TOTP({
+              label: '未命名',
+              secret: this.input
+            }))
           }
         },
         {
@@ -71,7 +76,10 @@ struct AddDialog {
           this.controller?.close()
           this.inputDialogController?.open()
           setTimeout(() => {
-            this.getUIContext().getFocusController().requestFocus('input')
+            try {
+              this.getUIContext().getFocusController().requestFocus('input')
+            } catch {
+            }
           }, 200)
         })
       }.align(Alignment.Center).width('100%')
@@ -84,10 +92,10 @@ struct AddDialog {
     scanBarcode.startScanForResult(getContext(this), options)
       .then((result: scanBarcode.ScanResult) => {
         const url = result.originalValue
-        if (!url.startsWith('otpauth://')) {
+        if (!url.startsWith('otpauth://totp/')) {
           this.getUIContext().showAlertDialog({
             title: '添加失败',
-            message: '当前扫描的不是令牌二维码',
+            message: '当前扫描的不是令牌二维码：' + url,
             primaryButton: {
               enabled: true,
               action: () => undefined,
@@ -97,7 +105,7 @@ struct AddDialog {
           return;
         }
 
-        this.success(url)
+        this.success(URI.parse(url) as TOTP)
       })
       .catch((error: BusinessError) => {
         if (error.code == 1000500001) {
@@ -115,21 +123,80 @@ struct AddDialog {
   }
 }
 
+@Component
+struct TotpComponent {
+  @State totp: TOTP = null!
+  @State token: string = ''
+  @State remaining: number = 1
+  interval: number | null = null
+
+  aboutToAppear(): void {
+    this.interval = setInterval(() => {
+      this.token = this.totp.generate();
+      this.remaining = this.totp.remaining();
+    }, 200);
+  }
+
+  aboutToDisappear(): void {
+    this.interval && clearInterval(this.interval)
+  }
+
+  build() {
+    Column() {
+      Row() {
+        Column() {
+          Text(this.totp.label).fontWeight(FontWeight.Bold).fontSize(18)
+          if (this.totp.issuer) {
+            Text(this.totp.issuer).fontSize(14).opacity(0.6).margin({
+              top: 6,
+            })
+          }
+        }
+        .alignItems(HorizontalAlign.Start)
+        .flexGrow(1)
+
+        Text(this.token).fontWeight(FontWeight.Bold).fontSize(26)
+      }
+      .width('100%')
+      .backgroundColor($r('app.color.card_background'))
+      .borderRadius(10)
+      .margin({
+        top: 10,
+      })
+      .padding({
+        left: 10,
+        right: 10,
+        top: 14,
+        bottom: 14,
+      })
+
+      Row()
+        .height(4)
+        .margin({
+          top: -4,
+        })
+        .width(`${this.remaining / 300}%`)
+        .backgroundColor($r('app.color.primary'))
+        .alignSelf(ItemAlign.Start)
+        .borderRadius({
+          bottomLeft: 10,
+          bottomRight: 10,
+        })
+    }
+    .width('94%')
+  }
+}
+
 @Entry
 @Component
 struct Index {
+  @State appItems: TOTP[] = [...storage.appItems]
   addDialogController: CustomDialogController | null = new CustomDialogController({
     builder: AddDialog({
-      success: (url) => {
-        this.getUIContext().showAlertDialog({
-          title: '添加成功',
-          message: url,
-          primaryButton: {
-            enabled: true,
-            action: () => undefined,
-            value: '关闭'
-          }
-        })
+      success: async (val) => {
+        storage.appItems.splice(0, 0, val)
+        await storage.save()
+        this.appItems = [...storage.appItems]
       },
     }),
     alignment: DialogAlignment.Center,
@@ -160,15 +227,8 @@ struct Index {
     Navigation() {
       Scroll() {
         Column() {
-          Row() {
-            Text('test')
-          }
-          .width('94%')
-          .height(60)
-          .backgroundColor($r('app.color.card_background'))
-          .borderRadius(10)
-          .margin({
-            top: 10,
+          ForEach(this.appItems, (item: TOTP) => {
+            TotpComponent({ totp: item })
           })
         }
       }
