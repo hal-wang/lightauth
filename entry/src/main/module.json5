@@ -16,9 +16,9 @@
         "name": "EntryAbility",
         "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "$string:EntryAbility_desc",
-        "icon": "$media:icon",
+        "icon": "$media:logo",
         "label": "$string:EntryAbility_label",
-        "startWindowIcon": "$media:startIcon",
+        "startWindowIcon": "$media:logo",
         "startWindowBackground": "$color:start_window_background",
         "exported": true,
         "skills": [
@@ -32,6 +32,38 @@
           }
         ]
       }
+    ],
+    metadata: [
+      {
+        name: "appgallery_privacy_hosted",
+        value: "1",
+      },
+      {
+        "name": "appgallery_privacy_link_privacy_statement",
+        "value": "https://blog.hal.wang/agreement/privacy-policy/zh/"
+      },
+      {
+        "name": "appgallery_privacy_link_user_agreement",
+        "value": "https://blog.hal.wang/agreement/user-agreement/zh/"
+      },
+      {
+        name: "app_id",
+        value: "6917570445314904193",
+      },
+      {
+        name: "client_id",
+        value: "6917570445314904193",
+      },
+    ],
+    requestPermissions: [
+      {
+        name: "ohos.permission.CAMERA",
+        reason: "$string:camera_reason",
+        usedScene: {
+          abilities: ["EntryAbility"],
+          when: "inuse",
+        },
+      },
     ]
   }
 }

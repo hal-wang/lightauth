@@ -1,41 +1,78 @@
 {
-  "app": {
-    "signingConfigs": [],
-    "products": [
+  app: {
+    signingConfigs: [
       {
-        "name": "default",
-        "signingConfig": "default",
-        "compatibleSdkVersion": "5.0.4(16)",
-        "runtimeOS": "HarmonyOS",
-        "buildOption": {
-          "strictMode": {
-            "caseSensitiveCheck": true,
-            "useNormalizedOHMUrl": false
-          }
-        }
-      }
-    ],
-    "buildModeSet": [
-      {
-        "name": "debug",
+        name: "default",
+        type: "HarmonyOS",
+        material: {
+          certpath: "C:\\Users\\H\\.ohos\\config\\default_lightauth_m5gomRwBDDrviTaGcMkEjOrv6K73Af5pAag0atU8GLM=.cer",
+          keyAlias: "debugKey",
+          keyPassword: "0000001BA13269DEC1BAFBE25CB94518DEEA77A3AE0C5CB1DBA0318B536A17CD80C02685DDB68F5F71C70C",
+          profile: "C:\\Users\\H\\.ohos\\config\\default_lightauth_m5gomRwBDDrviTaGcMkEjOrv6K73Af5pAag0atU8GLM=.p7b",
+          signAlg: "SHA256withECDSA",
+          storeFile: "C:\\Users\\H\\.ohos\\config\\default_lightauth_m5gomRwBDDrviTaGcMkEjOrv6K73Af5pAag0atU8GLM=.p12",
+          storePassword: "0000001BEA61168E972B52FB0C2E9A123BB07652EBA477ED3F2ACD9DE85F68C22F4D02D6C7EDAAA751FD90",
+        },
       },
       {
-        "name": "release"
-      }
-    ]
+        name: "release",
+        type: "HarmonyOS",
+        material: {
+          storeFile: "C:/dev/h/lightauth/cert/release.p12",
+          storePassword: "0000001840B5420883367F02B0423056827D83E75C46DF7DEAD0B6A55A3AE14B9F089F555EA17033",
+          keyAlias: "releaseKey",
+          keyPassword: "00000018A050AF3861506808FE33D1B6CCE36C72F370253289B660A110639E9382DFAEEA451E368F",
+          signAlg: "SHA256withECDSA",
+          profile: "C:/dev/h/lightauth/cert/releaseRelease.p7b",
+          certpath: "C:/dev/h/lightauth/cert/lightauth-release.cer",
+        },
+      },
+    ],
+    products: [
+      {
+        name: "default",
+        signingConfig: "default",
+        compatibleSdkVersion: "5.0.4(16)",
+        runtimeOS: "HarmonyOS",
+        buildOption: {
+          strictMode: {
+            caseSensitiveCheck: true,
+            useNormalizedOHMUrl: false,
+          },
+        },
+      },
+      {
+        name: "release",
+        signingConfig: "release",
+        compatibleSdkVersion: "5.0.4(16)",
+        runtimeOS: "HarmonyOS",
+        buildOption: {
+          strictMode: {
+            caseSensitiveCheck: true,
+            useNormalizedOHMUrl: false,
+          },
+        },
+      },
+    ],
+    buildModeSet: [
+      {
+        name: "debug",
+      },
+      {
+        name: "release",
+      },
+    ],
   },
-  "modules": [
+  modules: [
     {
-      "name": "entry",
-      "srcPath": "./entry",
-      "targets": [
+      name: "entry",
+      srcPath: "./entry",
+      targets: [
         {
-          "name": "default",
-          "applyToProducts": [
-            "default"
-          ]
-        }
-      ]
-    }
-  ]
+          name: "default",
+          applyToProducts: ["default"],
+        },
+      ],
+    },
+  ],
 }

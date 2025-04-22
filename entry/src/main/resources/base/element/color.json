@@ -2,7 +2,23 @@
   "color": [
     {
       "name": "start_window_background",
-      "value": "#FFFFFF"
+      "value": "#ffffff"
+    },
+    {
+      "name": "page_background",
+      "value": "#f3f4f6"
+    },
+    {
+      "name": "card_background",
+      "value": "#ffffff"
+    },
+    {
+      "name": "primary",
+      "value": "#307af5"
+    },
+    {
+      "name": "primary_reverse",
+      "value": "#ffffff"
     }
   ]
 }

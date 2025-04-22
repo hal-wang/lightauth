@@ -1,27 +1,55 @@
 import { authentication } from '@kit.AccountKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { router } from '@kit.ArkUI';
+import { SymbolGlyphModifier } from '@kit.ArkUI';
 
 const DOMAIN = 0x0000;
 
 @Entry
 @Component
 struct Index {
-  @State message: string = 'Hello World';
+  @State menuItems: Array<NavigationMenuItem> = [
+    {
+      value: '新增令牌',
+      symbolIcon: new SymbolGlyphModifier($r('sys.symbol.plus')),
+      action: () => {
+        router.pushUrl({ url: 'pages/Add' })
+      },
+    },
+    {
+      value: '新增令牌',
+      symbolIcon: new SymbolGlyphModifier($r('sys.symbol.gearshape')),
+      action: () => {
+        router.pushUrl({ url: 'pages/Settings' })
+      },
+    }
+  ]
 
   build() {
-    Row() {
-      Column() {
-        Text(this.message)
-          .fontSize($r('app.float.page_text_font_size'))
-          .fontWeight(FontWeight.Bold)
-          .onClick(() => {
-            this.message = 'Welcome';
+    Navigation() {
+      Scroll() {
+        Column() {
+          Row() {
+            Text('test')
+          }
+          .width('94%')
+          .height(60)
+          .backgroundColor($r('app.color.card_background'))
+          .borderRadius(10)
+          .margin({
+            top: 10,
           })
+        }
       }
-      .width('100%')
     }
-    .height('100%')
+    .title($r('app.string.EntryAbility_label'), {
+      backgroundColor: $r('app.color.card_background')
+    })
+    .titleMode(NavigationTitleMode.Mini)
+    .menus(this.menuItems)
+    .hideBackButton(true)
+    .backgroundColor($r('app.color.page_background'))
   }
 
   aboutToAppear() {

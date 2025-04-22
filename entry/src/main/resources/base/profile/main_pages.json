@@ -1,5 +1,8 @@
 {
   "src": [
-    "pages/Index"
+    "pages/Index",
+    "pages/Edit",
+    "pages/Add",
+    "pages/Settings"
   ]
 }
