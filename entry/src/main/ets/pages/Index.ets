@@ -60,7 +60,7 @@ struct AddDialog {
   build() {
     Column() {
       Text('新增令牌').fontSize(20).margin({ top: 10, bottom: 10 })
-      Text('选择新增令牌的方式').fontSize(16).margin({ bottom: 10 })
+      Text('选择新增令牌的方式').fontSize(16)
       Menu() {
         MenuItem({
           content: "扫描二维码",
@@ -82,7 +82,7 @@ struct AddDialog {
             }
           }, 200)
         })
-      }.align(Alignment.Center).width('100%')
+      }.align(Alignment.Center).width('100%').margin(10)
     }.borderRadius(10)
   }
 
@@ -123,6 +123,71 @@ struct AddDialog {
   }
 }
 
+
+@CustomDialog
+@Component
+struct EditDialog {
+  controller?: CustomDialogController
+  success: () => void = () => {
+  }
+  totp: TOTP | null = null;
+  @State label: string = ''
+  @State issuer: string = ''
+
+  async onDidBuild() {
+    this.label = this.totp?.label ?? ''
+    this.issuer = this.totp?.issuer ?? ''
+  }
+
+  build() {
+    Column() {
+      Text('修改令牌').fontSize(20).margin({ top: 10, bottom: 10 })
+      Text('账号名和提供商仅用于显示，不影响令牌').fontSize(16).opacity(0.7)
+
+      Column() {
+        Text('账号名').alignSelf(ItemAlign.Start).margin({ top: 20, left: 16, bottom: 4 })
+        TextInput({ placeholder: '请输入账号名', text: this.label }).onChange(val => {
+          this.label = val
+        })
+        Text('提供商').alignSelf(ItemAlign.Start).margin({ top: 20, left: 16, bottom: 4 })
+        TextInput({ placeholder: '请输入提供商', text: this.issuer }).onChange(val => {
+          this.issuer = val
+        })
+        Row() {
+          Button('确定').buttonStyle(ButtonStyleMode.TEXTUAL).width('50%').onClick(() => {
+            if (!this.label) {
+              this.getUIContext().getPromptAction().showToast({
+                message: '请输入账号名',
+                alignment: Alignment.Center,
+              })
+              return
+            }
+
+            if (this.totp) {
+              this.totp.label = this.label
+              this.totp.issuer = this.issuer
+              this.success()
+              this.controller?.close()
+            }
+          })
+          Button('取消').buttonStyle(ButtonStyleMode.TEXTUAL).fontColor(Color.Gray).width('50%').onClick(() => {
+            this.controller?.close()
+          })
+        }.width('100%')
+        .padding({
+          bottom: 14,
+          top: 14,
+        })
+      }.padding({
+        left: 14,
+        right: 14
+      })
+
+    }.borderRadius(10)
+  }
+}
+
+
 @Component
 struct TotpComponent {
   @State totp: TOTP = null!
@@ -160,9 +225,6 @@ struct TotpComponent {
       .width('100%')
       .backgroundColor($r('app.color.card_background'))
       .borderRadius(10)
-      .margin({
-        top: 10,
-      })
       .padding({
         left: 10,
         right: 10,
@@ -183,29 +245,42 @@ struct TotpComponent {
           bottomRight: 10,
         })
     }
-    .width('94%')
+    .width('100%')
   }
 }
 
 @Entry
 @Component
 struct Index {
-  @State appItems: TOTP[] = [...storage.appItems]
+  @State appItems: TOTP[] = []
+
+  private updateList() {
+    animateTo({ duration: 500 }, () => {
+      this.appItems = [...storage.appItems]
+    })
+  }
+
   addDialogController: CustomDialogController | null = new CustomDialogController({
     builder: AddDialog({
       success: async (val) => {
         storage.appItems.splice(0, 0, val)
         await storage.save()
-        this.appItems = [...storage.appItems]
+        this.updateList()
       },
     }),
     alignment: DialogAlignment.Center,
   })
-
-  aboutToDisappear(): void {
-    this.addDialogController = null
-  }
-
+  private editTotp: TOTP | null = null
+  editDialogController: CustomDialogController | null = new CustomDialogController({
+    builder: EditDialog({
+      success: async () => {
+        await storage.save()
+        this.updateList()
+      },
+      totp: this.editTotp,
+    }),
+    alignment: DialogAlignment.Center,
+  })
   @State menuItems: Array<NavigationMenuItem> = [
     {
       value: '新增令牌',
@@ -225,13 +300,27 @@ struct Index {
 
   build() {
     Navigation() {
-      Scroll() {
-        Column() {
-          ForEach(this.appItems, (item: TOTP) => {
+      List({ space: 10, scroller: this.scroller }) {
+        ForEach(this.appItems, (item: TOTP, index) => {
+          ListItem() {
             TotpComponent({ totp: item })
+              .margin({
+                left: 10,
+                right: 10,
+              })
+          }
+          .swipeAction({
+            end: this.DeleteButton(index),
           })
-        }
-      }
+          .onClick(() => {
+            this.editTotp = item
+            this.editDialogController?.open()
+          })
+        })
+      }.padding({
+        top: 10,
+        bottom: 10,
+      })
     }
     .title($r('app.string.EntryAbility_label'), {
       backgroundColor: $r('app.color.card_background')
@@ -242,37 +331,36 @@ struct Index {
     .backgroundColor($r('app.color.page_background'))
   }
 
-  aboutToAppear() {
-    hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onCreate');
-    this.loginWithHuaweiID();
+  private scroller: ListScroller = new ListScroller()
+
+  @Builder
+  DeleteButton(index: number) {
+    Button() {
+      SymbolGlyph($r('sys.symbol.trash'))
+        .fontColor([Color.White])
+        .fontSize(26)
+    }
+    .width(60)
+    .height('100%')
+    .type(ButtonType.Normal)
+    .backgroundColor(Color.Red)
+    .onClick(async () => {
+      storage.appItems.splice(index, 1)
+      await storage.save()
+      animateTo({ duration: 500 }, () => {
+        this.scroller.closeAllSwipeActions()
+        this.updateList()
+      })
+    })
   }
 
-  /**
-   * Sample code for using HUAWEI ID to log in to atomic service.
-   * According to the Atomic Service Review Guide, when a atomic service has an account system,
-   * the option to log in with a HUAWEI ID must be provided.
-   * The following presets the atomic service to use the HUAWEI ID silent login function.
-   * To enable the atomic service to log in successfully using the HUAWEI ID, please refer
-   * to the HarmonyOS HUAWEI ID Access Guide to configure the client ID and fingerprint certificate.
-   */
-  private loginWithHuaweiID() {
-    // Create a login request and set parameters
-    const loginRequest = new authentication.HuaweiIDProvider().createLoginWithHuaweiIDRequest();
-    // Whether to forcibly launch the HUAWEI ID login page when the user is not logged in with the HUAWEI ID
-    loginRequest.forceLogin = false;
-    // Execute login request
-    const controller = new authentication.AuthenticationController();
-    controller.executeRequest(loginRequest).then((data) => {
-      const loginWithHuaweiIDResponse = data as authentication.LoginWithHuaweiIDResponse;
-      const authCode = loginWithHuaweiIDResponse.data?.authorizationCode;
-      // Send authCode to the backend in exchange for unionID, session
+  async onDidBuild(): Promise<void> {
+    await storage.load(getContext(this))
+    this.updateList()
+  }
 
-    }).catch((error: BusinessError) => {
-      hilog.error(DOMAIN, 'testTag', 'error: %{public}s', JSON.stringify(error));
-      if (error.code === authentication.AuthenticationErrorCode.ACCOUNT_NOT_LOGGED_IN) {
-        // HUAWEI ID is not logged in, it is recommended to jump to the login guide page
-
-      }
-    });
+  aboutToDisappear(): void {
+    this.addDialogController = null
+    this.editDialogController = null
   }
 }

@@ -2,14 +2,12 @@ import { AbilityConstant, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import EmbeddableUIAbility from '@ohos.app.ability.EmbeddableUIAbility';
-import { storage } from '../utils/storage'
 
 const DOMAIN = 0x0000;
 
 export default class EntryAbility extends EmbeddableUIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onCreate');
-    storage.load(this.context)
   }
 
   onDestroy(): void {
