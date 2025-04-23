@@ -1,5 +1,6 @@
 import { TOTP, URI } from "./otpauth";
 import { preferences } from '@kit.ArkData';
+import { util } from '@kit.ArkTS';
 
 const key = "STORAGE_KEY_1";
 
@@ -24,7 +25,11 @@ class Storage {
     this.appItems.splice(
       0,
       this.appItems.length,
-      ...urls.map((x) => URI.parse(x) as TOTP),
+      ...urls.map((x) => {
+        const result = URI.parse(x) as TOTP
+        result.id = util.generateRandomUUID(true)
+        return result;
+      }),
     );
 
     this.inited = true

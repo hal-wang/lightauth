@@ -1,13 +1,10 @@
-import { authentication } from '@kit.AccountKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { hilog } from '@kit.PerformanceAnalysisKit';
-import { router } from '@kit.ArkUI';
+import { router, UIContext } from '@kit.ArkUI';
 import { SymbolGlyphModifier, CustomContentDialog } from '@kit.ArkUI';
 import { scanBarcode, scanCore } from '@kit.ScanKit';
 import { storage } from '../utils/storage'
 import { TOTP, URI } from "../utils/otpauth";
-
-const DOMAIN = 0x0000;
+import { util } from '@kit.ArkTS';
 
 @CustomDialog
 @Component
@@ -28,10 +25,35 @@ struct AddDialog {
           value: '确定',
           buttonStyle: ButtonStyleMode.TEXTUAL,
           action: () => {
-            this.success(new TOTP({
-              label: '未命名',
-              secret: this.input
-            }))
+            if (!this.input) {
+              this.getUIContext().showAlertDialog({
+                title: '添加失败',
+                message: '密钥不能为空',
+                primaryButton: {
+                  enabled: true,
+                  action: () => undefined,
+                  value: '关闭'
+                }
+              })
+              return
+            }
+            try {
+              this.success(new TOTP({
+                label: '未命名',
+                issuer: '',
+                secret: this.input
+              }))
+            } catch {
+              this.getUIContext().showAlertDialog({
+                title: '添加失败',
+                message: '未能解析密钥，请重新输入',
+                primaryButton: {
+                  enabled: true,
+                  action: () => undefined,
+                  value: '关闭'
+                }
+              })
+            }
           }
         },
         {
@@ -59,8 +81,8 @@ struct AddDialog {
 
   build() {
     Column() {
-      Text('新增令牌').fontSize(20).margin({ top: 10, bottom: 10 })
-      Text('选择新增令牌的方式').fontSize(16)
+      Text('新增令牌').fontSize(20).fontWeight(FontWeight.Bold).margin({ top: 10, bottom: 4 })
+      Text('选择新增令牌的方式').fontSize(14).opacity(0.7)
       Menu() {
         MenuItem({
           content: "扫描二维码",
@@ -141,15 +163,15 @@ struct EditDialog {
 
   build() {
     Column() {
-      Text('修改令牌').fontSize(20).margin({ top: 10, bottom: 10 })
-      Text('账号名和提供商仅用于显示，不影响令牌').fontSize(16).opacity(0.7)
+      Text('修改令牌').fontSize(20).fontWeight(FontWeight.Bold).margin({ top: 10, bottom: 4 })
+      Text('账号名和提供商仅用于显示，不影响令牌').fontSize(14).opacity(0.7)
 
       Column() {
-        Text('账号名').alignSelf(ItemAlign.Start).margin({ top: 20, left: 16, bottom: 4 })
+        Text('账号名').alignSelf(ItemAlign.Start).fontWeight(FontWeight.Bold).margin({ top: 20, left: 16, bottom: 4 })
         TextInput({ placeholder: '请输入账号名', text: this.label }).onChange(val => {
           this.label = val
         })
-        Text('提供商').alignSelf(ItemAlign.Start).margin({ top: 20, left: 16, bottom: 4 })
+        Text('提供商').alignSelf(ItemAlign.Start).fontWeight(FontWeight.Bold).margin({ top: 20, left: 16, bottom: 4 })
         TextInput({ placeholder: '请输入提供商', text: this.issuer }).onChange(val => {
           this.issuer = val
         })
@@ -166,6 +188,7 @@ struct EditDialog {
             if (this.totp) {
               this.totp.label = this.label
               this.totp.issuer = this.issuer
+              this.totp.id = util.generateRandomUUID(true)
               this.success()
               this.controller?.close()
             }
@@ -198,7 +221,9 @@ struct TotpComponent {
   aboutToAppear(): void {
     this.interval = setInterval(() => {
       this.token = this.totp.generate();
-      this.remaining = this.totp.remaining();
+      animateTo({ duration: 180 }, () => {
+        this.remaining = this.totp.remaining();
+      })
     }, 200);
   }
 
@@ -264,6 +289,7 @@ struct Index {
   addDialogController: CustomDialogController | null = new CustomDialogController({
     builder: AddDialog({
       success: async (val) => {
+        val.id = util.generateRandomUUID(true)
         storage.appItems.splice(0, 0, val)
         await storage.save()
         this.appItems.splice(0, 0, val)
@@ -271,14 +297,14 @@ struct Index {
     }),
     alignment: DialogAlignment.Center,
   })
-  private editTotp: TOTP | null = null
+  private editIndex?: number;
   editDialogController: CustomDialogController | null = new CustomDialogController({
     builder: EditDialog({
       success: async () => {
         await storage.save()
         this.updateList()
       },
-      totp: this.editTotp,
+      totp: this.appItems[this.editIndex!],
     }),
     alignment: DialogAlignment.Center,
   })
@@ -314,10 +340,10 @@ struct Index {
             end: this.DeleteButton(index),
           })
           .onClick(() => {
-            this.editTotp = item
+            this.editIndex = index
             this.editDialogController?.open()
           })
-        })
+        }, (item: TOTP) => item.id)
       }.padding({
         top: 10,
         bottom: 10,

@@ -1620,7 +1620,10 @@ const gen = (suffix, blockLen, outputLen)=>wrapConstructor(()=>new Keccak(blockL
 /**
  * TOTP: Time-Based One-Time Password Algorithm.
  * @see [RFC 6238](https://datatracker.ietf.org/doc/html/rfc6238)
- */ class TOTP {
+ */
+class TOTP {
+    id = ""
+
     /**
      * Default configuration.
      * @type {{
