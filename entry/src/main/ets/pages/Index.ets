@@ -260,12 +260,13 @@ struct Index {
     })
   }
 
+  private scroller: ListScroller = new ListScroller()
   addDialogController: CustomDialogController | null = new CustomDialogController({
     builder: AddDialog({
       success: async (val) => {
         storage.appItems.splice(0, 0, val)
         await storage.save()
-        this.updateList()
+        this.appItems.splice(0, 0, val)
       },
     }),
     alignment: DialogAlignment.Center,
@@ -329,9 +330,10 @@ struct Index {
     .menus(this.menuItems)
     .hideBackButton(true)
     .backgroundColor($r('app.color.page_background'))
+    .onClick(() => {
+      this.scroller.closeAllSwipeActions()
+    })
   }
-
-  private scroller: ListScroller = new ListScroller()
 
   @Builder
   DeleteButton(index: number) {
@@ -345,11 +347,29 @@ struct Index {
     .type(ButtonType.Normal)
     .backgroundColor(Color.Red)
     .onClick(async () => {
+      const res = await this.getUIContext().getPromptAction().showDialog({
+        title: '确认删除',
+        message: `即将删除令牌 ${this.appItems[index].label}，该操作不可恢复，确认继续？`,
+        buttons: [
+          {
+            text: "确认",
+            color: $r('sys.color.warning'),
+          },
+          {
+            text: "取消",
+            color: $r('sys.color.font_secondary'),
+          },
+        ]
+      })
+      if (res.index != 0) {
+        return
+      }
+
       storage.appItems.splice(index, 1)
       await storage.save()
+      this.scroller.closeAllSwipeActions()
       animateTo({ duration: 500 }, () => {
-        this.scroller.closeAllSwipeActions()
-        this.updateList()
+        this.appItems.splice(index, 1)
       })
     })
   }
