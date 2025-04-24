@@ -173,11 +173,17 @@ struct EditDialog {
       Text('账号名和提供商仅用于显示，不影响令牌').fontSize(14).opacity(0.7)
 
       Column() {
-        Text('账号名').alignSelf(ItemAlign.Start).fontWeight(FontWeight.Bold).margin({ top: 20, left: 16, bottom: 4 })
+        Text('账号名（必填）')
+          .alignSelf(ItemAlign.Start)
+          .fontWeight(FontWeight.Bold)
+          .margin({ top: 20, left: 16, bottom: 4 })
         TextInput({ placeholder: '请输入账号名', text: this.label }).onChange(val => {
           this.label = val
         })
-        Text('提供商').alignSelf(ItemAlign.Start).fontWeight(FontWeight.Bold).margin({ top: 20, left: 16, bottom: 4 })
+        Text('提供商（可选）')
+          .alignSelf(ItemAlign.Start)
+          .fontWeight(FontWeight.Bold)
+          .margin({ top: 20, left: 16, bottom: 4 })
         TextInput({ placeholder: '请输入提供商', text: this.issuer }).onChange(val => {
           this.issuer = val
         })
@@ -234,6 +240,7 @@ struct TotpComponent {
   @State token: string = ''
   @State remaining: number = 1
   interval: number | null = null
+  @State isTouched: boolean = false;
 
   aboutToAppear(): void {
     this.interval = setInterval(() => {
@@ -265,8 +272,7 @@ struct TotpComponent {
         Text(this.token).fontWeight(FontWeight.Bold).fontSize(26)
       }
       .width('100%')
-      .backgroundColor($r('sys.color.comp_background_primary'))
-      .borderRadius(10)
+      .backgroundColor(this.isTouched ? $r('sys.color.interactive_pressed') : $r('sys.color.ohos_fa_list_card_bg'))
       .padding(16)
 
       Row()
@@ -277,12 +283,18 @@ struct TotpComponent {
         .width(`${this.remaining / 300}%`)
         .backgroundColor($r('sys.color.ohos_fa_activated'))
         .alignSelf(ItemAlign.Start)
-        .borderRadius({
-          bottomLeft: 10,
-          bottomRight: 10,
-        })
+        .borderRadius(2)
     }
+    .borderRadius(20)
     .width('100%')
+    .clip(true)
+    .onTouch((event: TouchEvent) => {
+      if (event.type === TouchType.Down) {
+        this.isTouched = true;
+      } else if (event.type === TouchType.Up) {
+        this.isTouched = false;
+      }
+    })
   }
 }
 
