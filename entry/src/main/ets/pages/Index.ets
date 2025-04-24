@@ -5,6 +5,8 @@ import { scanBarcode, scanCore } from '@kit.ScanKit';
 import { storage } from '../utils/storage'
 import { TOTP, URI } from "../utils/otpauth";
 import { util } from '@kit.ArkTS';
+import { picker } from '@kit.CoreFileKit';
+import { fileIo as fs } from '@kit.CoreFileKit';
 
 @CustomDialog
 @Component
@@ -91,20 +93,26 @@ struct AddDialog {
           this.controller?.close()
           this.scanQR()
         })
-        MenuItem({
-          content: "手动输入密钥",
-          symbolStartIcon: new SymbolGlyphModifier($r('sys.symbol.selector')).fontSize(24)
-        }).onChange(() => {
-          this.controller?.close()
-          this.inputDialogController?.open()
-          setTimeout(() => {
-            try {
-              this.getUIContext().getFocusController().requestFocus('input')
-            } catch {
-            }
-          }, 200)
-        })
-      }.align(Alignment.Center).width('100%').margin(10)
+
+        MenuItemGroup() {
+          MenuItem({
+            content: "手动输入密钥",
+            symbolStartIcon: new SymbolGlyphModifier($r('sys.symbol.selector')).fontSize(24)
+          }).onChange(() => {
+            this.controller?.close()
+            this.inputDialogController?.open()
+            setTimeout(() => {
+              try {
+                this.getUIContext().getFocusController().requestFocus('input')
+              } catch {
+              }
+            }, 200)
+          })
+        }
+      }
+      .align(Alignment.Center)
+      .width('100%')
+      .margin(10)
     }.borderRadius(10)
   }
 
@@ -176,26 +184,37 @@ struct EditDialog {
           this.issuer = val
         })
         Row() {
-          Button('确定').buttonStyle(ButtonStyleMode.TEXTUAL).width('50%').onClick(() => {
-            if (!this.label) {
-              this.getUIContext().getPromptAction().showToast({
-                message: '请输入账号名',
-                alignment: Alignment.Center,
-              })
-              return
-            }
+          Button('确定')
+            .buttonStyle(ButtonStyleMode.TEXTUAL)
+            .onClick(() => {
+              if (!this.label) {
+                this.getUIContext().getPromptAction().showToast({
+                  message: '请输入账号名',
+                  alignment: Alignment.Center,
+                })
+                return
+              }
 
-            if (this.totp) {
-              this.totp.label = this.label
-              this.totp.issuer = this.issuer
-              this.totp.id = util.generateRandomUUID(true)
-              this.success()
+              if (this.totp) {
+                this.totp.label = this.label
+                this.totp.issuer = this.issuer
+                this.totp.id = util.generateRandomUUID(true)
+                this.success()
+                this.controller?.close()
+              }
+            })
+            .flexGrow(1)
+          Line()
+            .height(24)
+            .width(1)
+            .backgroundColor($r('sys.color.ohos_fa_list_separator'))
+          Button('取消')
+            .buttonStyle(ButtonStyleMode.TEXTUAL)
+            .fontColor(Color.Gray)
+            .onClick(() => {
               this.controller?.close()
-            }
-          })
-          Button('取消').buttonStyle(ButtonStyleMode.TEXTUAL).fontColor(Color.Gray).width('50%').onClick(() => {
-            this.controller?.close()
-          })
+            })
+            .flexGrow(1)
         }.width('100%')
         .padding({
           bottom: 14,
@@ -248,7 +267,7 @@ struct TotpComponent {
         Text(this.token).fontWeight(FontWeight.Bold).fontSize(26)
       }
       .width('100%')
-      .backgroundColor($r('app.color.card_background'))
+      .backgroundColor($r('sys.color.comp_background_primary'))
       .borderRadius(10)
       .padding({
         left: 10,
@@ -263,7 +282,7 @@ struct TotpComponent {
           top: -4,
         })
         .width(`${this.remaining / 300}%`)
-        .backgroundColor($r('app.color.primary'))
+        .backgroundColor($r('sys.color.ohos_fa_activated'))
         .alignSelf(ItemAlign.Start)
         .borderRadius({
           bottomLeft: 10,
@@ -337,7 +356,7 @@ struct Index {
               })
           }
           .swipeAction({
-            end: this.DeleteButton(index),
+            end: this.SwipeActions(index),
           })
           .onClick(() => {
             this.editIndex = index
@@ -349,55 +368,83 @@ struct Index {
         bottom: 10,
       })
     }
-    .title($r('app.string.EntryAbility_label'), {
-      backgroundColor: $r('app.color.card_background')
-    })
-    .titleMode(NavigationTitleMode.Mini)
+    .title($r('app.string.EntryAbility_label'))
     .menus(this.menuItems)
     .hideBackButton(true)
-    .backgroundColor($r('app.color.page_background'))
+    .backgroundColor($r('sys.color.comp_background_gray'))
     .onClick(() => {
       this.scroller.closeAllSwipeActions()
     })
   }
 
   @Builder
-  DeleteButton(index: number) {
-    Button() {
-      SymbolGlyph($r('sys.symbol.trash'))
-        .fontColor([Color.White])
-        .fontSize(26)
-    }
-    .width(60)
-    .height('100%')
-    .type(ButtonType.Normal)
-    .backgroundColor(Color.Red)
-    .onClick(async () => {
-      const res = await this.getUIContext().getPromptAction().showDialog({
-        title: '确认删除',
-        message: `即将删除令牌 ${this.appItems[index].label}，该操作不可恢复，确认继续？`,
-        buttons: [
-          {
-            text: "确认",
-            color: $r('sys.color.warning'),
-          },
-          {
-            text: "取消",
-            color: $r('sys.color.font_secondary'),
-          },
-        ]
-      })
-      if (res.index != 0) {
-        return
+  SwipeActions(index: number) {
+    Row() {
+      Button() {
+        SymbolGlyph($r('sys.symbol.arrow_right_up_and_square'))
+          .fontColor([$r('sys.color.font_on')])
+          .fontSize(26)
       }
-
-      storage.appItems.splice(index, 1)
-      await storage.save()
-      this.scroller.closeAllSwipeActions()
-      animateTo({ duration: 500 }, () => {
-        this.appItems.splice(index, 1)
+      .width(60)
+      .height('100%')
+      .type(ButtonType.Normal)
+      .backgroundColor($r('sys.color.ohos_fa_activated'))
+      .onClick(async () => {
+        const documentSaveOptions = new picker.DocumentSaveOptions();
+        documentSaveOptions.newFileNames = [`${this.appItems[index].label}.la`];
+        documentSaveOptions.fileSuffixChoices = ['轻令牌|.la', '.la'];
+        const documentViewPicker = new picker.DocumentViewPicker(getContext(this));
+        documentViewPicker.save(documentSaveOptions).then((documentSaveResult: Array<string>) => {
+          const uris = documentSaveResult;
+          if (!uris.length) {
+            this.getUIContext().getPromptAction().showToast({
+              message: "导出失败"
+            })
+            return;
+          }
+        }).catch((err: BusinessError) => {
+          this.getUIContext().getPromptAction().showToast({
+            message: "导出失败"
+          })
+        })
       })
-    })
+
+      Button() {
+        SymbolGlyph($r('sys.symbol.trash'))
+          .fontColor([$r('sys.color.font_on')])
+          .fontSize(26)
+      }
+      .width(60)
+      .height('100%')
+      .type(ButtonType.Normal)
+      .backgroundColor($r('sys.color.warning'))
+      .onClick(async () => {
+        const res = await this.getUIContext().getPromptAction().showDialog({
+          title: '确认删除',
+          message: `即将删除令牌 ${this.appItems[index].label}，该操作不可恢复，确认继续？`,
+          buttons: [
+            {
+              text: "确认",
+              color: $r('sys.color.warning'),
+            },
+            {
+              text: "取消",
+              color: $r('sys.color.font_secondary'),
+            },
+          ]
+        })
+        if (res.index != 0) {
+          return
+        }
+
+        storage.appItems.splice(index, 1)
+        await storage.save()
+        this.scroller.closeAllSwipeActions()
+        animateTo({ duration: 500 }, () => {
+          this.appItems.splice(index, 1)
+        })
+      })
+    }
   }
 
   async onDidBuild(): Promise<void> {

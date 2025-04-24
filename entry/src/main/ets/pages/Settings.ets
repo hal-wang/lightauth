@@ -3,12 +3,12 @@
 struct Settings {
   build() {
     Navigation() {
+Column(){
 
+}
     }
-    .title('设置', {
-      backgroundColor: $r('app.color.card_background')
-    })
+    .title('设置')
     .titleMode(NavigationTitleMode.Mini)
-    .backgroundColor($r('app.color.page_background'))
+    .backgroundColor($r('sys.color.comp_background_gray'))
   }
 }

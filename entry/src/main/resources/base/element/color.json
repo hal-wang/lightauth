@@ -3,30 +3,6 @@
     {
       "name": "start_window_background",
       "value": "#ffffff"
-    },
-    {
-      "name": "page_background",
-      "value": "#f3f4f6"
-    },
-    {
-      "name": "page_background_reverse",
-      "value": "#000000"
-    },
-    {
-      "name": "card_background",
-      "value": "#ffffff"
-    },
-    {
-      "name": "card_background_reverse",
-      "value": "#000000"
-    },
-    {
-      "name": "primary",
-      "value": "#307af5"
-    },
-    {
-      "name": "primary_reverse",
-      "value": "#ffffff"
     }
   ]
 }
