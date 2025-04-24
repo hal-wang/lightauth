@@ -459,4 +459,10 @@ struct Index {
     this.addDialogController = null
     this.editDialogController = null
   }
+
+  onPageShow(): void {
+    if (this.appItems.length != storage.appItems.length) {
+      this.updateList()
+    }
+  }
 }

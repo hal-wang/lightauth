@@ -1,8 +1,11 @@
-import { picker } from '@kit.CoreFileKit'
+import { fileUri, picker } from '@kit.CoreFileKit'
 import { intl } from '@kit.LocalizationKit'
 import { fileIo as fs } from '@kit.CoreFileKit';
-import { aesEncrypt, stringToUint8Array } from '../utils/crypto';
+import { aesDecrypt, aesEncrypt, stringToUint8Array, uint8ArrayToString } from '../utils/crypto';
 import { storage } from '../utils/storage';
+import { TOTP, URI } from "../utils/otpauth";
+import { continuationManager } from '@kit.AbilityKit';
+import { util } from '@kit.ArkTS';
 
 @Component
 export struct MainItem {
@@ -96,11 +99,13 @@ struct Settings {
           ItemGroup() {
             MainItem({
               title: '导出令牌',
-            }).onClick(() => this.export())
+            })
+              .onClick(() => this.export())
             this.CustomDivider()
             MainItem({
               title: '导入令牌',
             })
+              .onClick(() => this.import())
           }
         }
       }
@@ -111,6 +116,52 @@ struct Settings {
     .title('设置')
     .titleMode(NavigationTitleMode.Mini)
     .backgroundColor($r('sys.color.comp_background_gray'))
+  }
+
+  private fileUrlPrefix = "file://docs/storage/Users/currentUser/";
+  private bundleName = "com.atomicservice.6917570445314904193"
+
+  async import() {
+    const documentSelectOptions = new picker.DocumentSelectOptions();
+    documentSelectOptions.maxSelectNumber = 1;
+    documentSelectOptions.fileSuffixFilters = ['轻令牌备份|.la'];
+    documentSelectOptions.defaultFilePathUri =
+      `${this.fileUrlPrefix}Download/${this.bundleName}/备份`
+    const documentViewPicker = new picker.DocumentViewPicker(getContext(this));
+    try {
+      const documentSelectResult = await documentViewPicker.select(documentSelectOptions)
+      const url = documentSelectResult[0]
+      if (!url) {
+        return
+      }
+      console.log('导入地址', url)
+      const file = await fs.open(url, fs.OpenMode.READ_ONLY);
+      const stat = await fs.stat(file.fd)
+      const buffer = new ArrayBuffer(stat.size)
+      await fs.read(file.fd, buffer)
+      const data = await aesDecrypt(new Uint8Array(buffer))
+      uint8ArrayToString(data)
+        .split('\n')
+        .forEach((url) => {
+          try {
+            if (!storage.appItems.some(x => x.toString() == url)) {
+              const totp = URI.parse(url) as TOTP
+              totp.id = util.generateRandomUUID(true)
+              storage.appItems.splice(0, 0, totp)
+            }
+          } catch {
+          }
+        })
+      await storage.save()
+      this.getUIContext().getPromptAction().showToast({
+        message: "导入完成"
+      })
+    } catch (err) {
+      console.error('导入失败', err)
+      this.getUIContext().getPromptAction().showToast({
+        message: "导入失败"
+      })
+    }
   }
 
   async export() {
@@ -134,23 +185,41 @@ struct Settings {
     documentSaveOptions.newFileNames =
       [`轻令牌备份 ${time}.la`];
     documentSaveOptions.fileSuffixChoices = ['轻令牌|.la', '.la'];
+    documentSaveOptions.defaultFilePathUri = `${this.fileUrlPrefix}Download/${this.bundleName}/备份`
     const documentViewPicker = new picker.DocumentViewPicker(getContext(this));
     try {
+      {
+        const tempOptions = new picker.DocumentSaveOptions();
+        tempOptions.pickerMode = picker.DocumentPickerMode.DOWNLOAD;
+        const tempUrls = await documentViewPicker.save(tempOptions);
+        if (tempUrls.length) {
+          const dirPath = new fileUri.FileUri(`${tempUrls[0]}/备份`).path
+          if (!await fs.access(dirPath, fs.AccessModeType.EXIST)) {
+            await fs.mkdir(dirPath)
+          }
+        }
+      }
+
       const documentSaveResult = await documentViewPicker.save(documentSaveOptions);
       const uris = documentSaveResult;
       const uri = uris[0]
       if (!uri) {
         return;
       }
-
       const file = await fs.open(uri, fs.OpenMode.READ_WRITE);
       const data = await aesEncrypt(stringToUint8Array(storage.appItems.join('\n')))
       await fs.write(file.fd, data.buffer, {})
       await fs.close(file)
 
+      console.log('导出地址', uri)
+      let tipUrl = decodeURIComponent(uri)
+      if (tipUrl.startsWith(this.fileUrlPrefix)) {
+        tipUrl = '我的手机/' + tipUrl.substring(this.fileUrlPrefix.length, tipUrl.length)
+      }
+      tipUrl = tipUrl.replace(this.bundleName, '轻令牌')
       this.getUIContext().showAlertDialog({
-        title: '导出完成',
-        message: '导出成功。为了令牌安全，导出的文件已加密，无法直接打开，请妥善保管。',
+        title: '导出成功',
+        message: `为了令牌安全，导出的文件已加密，无法直接打开，请妥善保管。保存地址：${tipUrl}`,
         primaryButton: {
           enabled: true,
           action: () => undefined,
