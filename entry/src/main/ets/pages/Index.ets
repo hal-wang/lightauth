@@ -1,12 +1,10 @@
-import { BusinessError } from '@kit.BasicServicesKit';
-import { router, UIContext } from '@kit.ArkUI';
+import { BusinessError, pasteboard } from '@kit.BasicServicesKit';
+import { router } from '@kit.ArkUI';
 import { SymbolGlyphModifier, CustomContentDialog } from '@kit.ArkUI';
 import { scanBarcode, scanCore } from '@kit.ScanKit';
 import { storage } from '../utils/storage'
 import { TOTP, URI } from "../utils/otpauth";
 import { util } from '@kit.ArkTS';
-import { picker } from '@kit.CoreFileKit';
-import { fileIo as fs } from '@kit.CoreFileKit';
 
 @CustomDialog
 @Component
@@ -269,12 +267,7 @@ struct TotpComponent {
       .width('100%')
       .backgroundColor($r('sys.color.comp_background_primary'))
       .borderRadius(10)
-      .padding({
-        left: 10,
-        right: 10,
-        top: 14,
-        bottom: 14,
-      })
+      .padding(16)
 
       Row()
         .height(4)
@@ -358,9 +351,20 @@ struct Index {
           .swipeAction({
             end: this.SwipeActions(index),
           })
-          .onClick(() => {
-            this.editIndex = index
-            this.editDialogController?.open()
+          .onClick(async () => {
+            try {
+              const pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, item.generate());
+              let systemPasteboard = pasteboard.getSystemPasteboard();
+              await systemPasteboard.setData(pasteData);
+              this.getUIContext().getPromptAction().showToast({
+                message: '已复制'
+              })
+            } catch {
+              this.getUIContext().getPromptAction().showToast({
+                message: '复制失败'
+              })
+            }
+
           })
         }, (item: TOTP) => item.id)
       }.padding({
@@ -381,7 +385,7 @@ struct Index {
   SwipeActions(index: number) {
     Row() {
       Button() {
-        SymbolGlyph($r('sys.symbol.arrow_right_up_and_square'))
+        SymbolGlyph($r('sys.symbol.square_and_pencil'))
           .fontColor([$r('sys.color.font_on')])
           .fontSize(26)
       }
@@ -389,24 +393,10 @@ struct Index {
       .height('100%')
       .type(ButtonType.Normal)
       .backgroundColor($r('sys.color.ohos_fa_activated'))
-      .onClick(async () => {
-        const documentSaveOptions = new picker.DocumentSaveOptions();
-        documentSaveOptions.newFileNames = [`${this.appItems[index].label}.la`];
-        documentSaveOptions.fileSuffixChoices = ['轻令牌|.la', '.la'];
-        const documentViewPicker = new picker.DocumentViewPicker(getContext(this));
-        documentViewPicker.save(documentSaveOptions).then((documentSaveResult: Array<string>) => {
-          const uris = documentSaveResult;
-          if (!uris.length) {
-            this.getUIContext().getPromptAction().showToast({
-              message: "导出失败"
-            })
-            return;
-          }
-        }).catch((err: BusinessError) => {
-          this.getUIContext().getPromptAction().showToast({
-            message: "导出失败"
-          })
-        })
+      .onClick(() => {
+        this.scroller.closeAllSwipeActions()
+        this.editIndex = index
+        this.editDialogController?.open()
       })
 
       Button() {
@@ -419,9 +409,10 @@ struct Index {
       .type(ButtonType.Normal)
       .backgroundColor($r('sys.color.warning'))
       .onClick(async () => {
+        this.scroller.closeAllSwipeActions()
         const res = await this.getUIContext().getPromptAction().showDialog({
           title: '确认删除',
-          message: `即将删除令牌 ${this.appItems[index].label}，该操作不可恢复，确认继续？`,
+          message: `即将删除令牌“${this.appItems[index].label}”，该操作不可恢复，确认继续？`,
           buttons: [
             {
               text: "确认",
