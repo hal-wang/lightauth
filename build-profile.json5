@@ -2,36 +2,36 @@
   app: {
     signingConfigs: [
       {
-        name: "default",
-        type: "HarmonyOS",
-        material: {
-          certpath: "C:\\Users\\H\\.ohos\\config\\default_lightauth_m5gomRwBDDrviTaGcMkEjOrv6K73Af5pAag0atU8GLM=.cer",
-          keyAlias: "debugKey",
-          keyPassword: "0000001BA13269DEC1BAFBE25CB94518DEEA77A3AE0C5CB1DBA0318B536A17CD80C02685DDB68F5F71C70C",
-          profile: "C:\\Users\\H\\.ohos\\config\\default_lightauth_m5gomRwBDDrviTaGcMkEjOrv6K73Af5pAag0atU8GLM=.p7b",
-          signAlg: "SHA256withECDSA",
-          storeFile: "C:\\Users\\H\\.ohos\\config\\default_lightauth_m5gomRwBDDrviTaGcMkEjOrv6K73Af5pAag0atU8GLM=.p12",
-          storePassword: "0000001BEA61168E972B52FB0C2E9A123BB07652EBA477ED3F2ACD9DE85F68C22F4D02D6C7EDAAA751FD90",
-        },
+        "name": "debug",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\H\\.ohos\\config\\debug_lightauth_m5gomRwBDDrviTaGcMkEjOrv6K73Af5pAag0atU8GLM=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001BECF93B8C552DE29B526BFCE1BD9B33C12A0067B9F4F6286A66BB10C50292ABAA9054A2ECC5C12E",
+          "profile": "C:\\Users\\H\\.ohos\\config\\debug_lightauth_m5gomRwBDDrviTaGcMkEjOrv6K73Af5pAag0atU8GLM=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\H\\.ohos\\config\\debug_lightauth_m5gomRwBDDrviTaGcMkEjOrv6K73Af5pAag0atU8GLM=.p12",
+          "storePassword": "0000001B22187322BF64BADC18E5DD2E957FD1658F0D16F33DA4E1A9E66C68B3FB978B804123BA29652883"
+        }
       },
       {
-        name: "release",
-        type: "HarmonyOS",
-        material: {
-          storeFile: "C:/dev/h/lightauth/cert/release.p12",
-          storePassword: "0000001840B5420883367F02B0423056827D83E75C46DF7DEAD0B6A55A3AE14B9F089F555EA17033",
-          keyAlias: "releaseKey",
-          keyPassword: "00000018A050AF3861506808FE33D1B6CCE36C72F370253289B660A110639E9382DFAEEA451E368F",
-          signAlg: "SHA256withECDSA",
-          profile: "C:/dev/h/lightauth/cert/releaseRelease.p7b",
-          certpath: "C:/dev/h/lightauth/cert/lightauth-release.cer",
-        },
-      },
+        "name": "release",
+        "type": "HarmonyOS",
+        "material": {
+          "storeFile": "C:/dev/h/lightauth/cert/release.p12",
+          "storePassword": "000000189469CFFFAB05A4449A1A2704579BDE9FBBED80D3D9D4FEC461C40B0E511665F3D7164E9E",
+          "keyAlias": "release",
+          "keyPassword": "00000018CCA5E25986BE5625DB39E5D08CA872C350B14FAAFA48F3664B6F95581E00F97D70F01B85",
+          "signAlg": "SHA256withECDSA",
+          "profile": "C:/dev/h/lightauth/cert/releaseRelease.p7b",
+          "certpath": "C:/dev/h/lightauth/cert/release.cer"
+        }
+      }
     ],
     products: [
       {
         name: "default",
-        signingConfig: "default",
+        signingConfig: "debug",
         compatibleSdkVersion: "5.0.4(16)",
         runtimeOS: "HarmonyOS",
         buildOption: {
@@ -52,7 +52,7 @@
             useNormalizedOHMUrl: false,
           },
         },
-      },
+      }
     ],
     buildModeSet: [
       {
@@ -70,7 +70,10 @@
       targets: [
         {
           name: "default",
-          applyToProducts: ["default"],
+          applyToProducts: [
+            "default",
+            "release"
+          ],
         },
       ],
     },

@@ -17,7 +17,7 @@
         "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "$string:EntryAbility_desc",
         "icon": "$media:logo",
-        "label": "$string:EntryAbility_label",
+        "label": "$string:app_name",
         "startWindowIcon": "$media:logo",
         "startWindowBackground": "$color:start_window_background",
         "exported": true,
@@ -40,11 +40,11 @@
       },
       {
         "name": "appgallery_privacy_link_privacy_statement",
-        "value": "https://blog.hal.wang/agreement/privacy-policy/zh/"
+        "value": "https://agreement-drcn.hispace.dbankcloud.cn/index.html?lang=zh&agreementId=1668295446113561088"
       },
       {
         "name": "appgallery_privacy_link_user_agreement",
-        "value": "https://blog.hal.wang/agreement/user-agreement/zh/"
+        "value": "https://blog.hal.wang/agreement/user-agreement/zh/lightauth"
       },
       {
         name: "app_id",

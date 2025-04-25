@@ -384,7 +384,7 @@ struct Index {
         bottom: 10,
       })
     }
-    .title($r('app.string.EntryAbility_label'))
+    .title($r('app.string.app_name'))
     .menus(this.menuItems)
     .hideBackButton(true)
     .backgroundColor($r('sys.color.comp_background_gray'))

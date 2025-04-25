@@ -9,10 +9,6 @@
       "value": "description"
     },
     {
-      "name": "EntryAbility_label",
-      "value": "轻令牌"
-    },
-    {
       "name": "camera_reason",
       "value": "扫码二维码添加令牌"
     }
