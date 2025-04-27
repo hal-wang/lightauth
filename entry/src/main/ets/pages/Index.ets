@@ -259,15 +259,25 @@ struct TotpComponent {
     Column() {
       Row() {
         Column() {
-          Text(this.totp.label).fontWeight(FontWeight.Bold).fontSize(18)
+          Text(this.totp.issuer || this.totp.label)
+            .fontWeight(FontWeight.Bold)
+            .fontSize(18)
+            .textOverflow({ overflow: TextOverflow.Ellipsis })
+            .maxLines(1)
           if (this.totp.issuer) {
-            Text(this.totp.issuer).fontSize(14).opacity(0.6).margin({
-              top: 6,
-            })
+            Text(this.totp.label)
+              .fontSize(14)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .maxLines(1)
+              .opacity(0.6)
+              .margin({
+                top: 6,
+              })
           }
         }
         .alignItems(HorizontalAlign.Start)
         .flexGrow(1)
+        .width(0)
 
         Text(this.token).fontWeight(FontWeight.Bold).fontSize(26)
       }
