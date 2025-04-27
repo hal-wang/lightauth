@@ -347,6 +347,10 @@ struct Index {
       value: '新增令牌',
       symbolIcon: new SymbolGlyphModifier($r('sys.symbol.plus')),
       action: () => {
+        if (!storage.loaded) {
+          return;
+        }
+
         this.addDialogController?.open()
       },
     },
@@ -354,6 +358,10 @@ struct Index {
       value: '设置',
       symbolIcon: new SymbolGlyphModifier($r('sys.symbol.gearshape')),
       action: () => {
+        if (!storage.loaded) {
+          return;
+        }
+
         router.pushUrl({ url: 'pages/Settings' })
       },
     }
@@ -461,7 +469,7 @@ struct Index {
   }
 
   async onDidBuild(): Promise<void> {
-    await storage.load(getContext(this))
+    await storage.load(this.getUIContext())
     this.updateList()
   }
 

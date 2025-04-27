@@ -4,22 +4,25 @@ import { fileIo as fs } from '@kit.CoreFileKit';
 import { aesDecrypt, aesEncrypt, stringToUint8Array, uint8ArrayToString } from '../utils/crypto';
 import { storage } from '../utils/storage';
 import { TOTP, URI } from "../utils/otpauth";
-import { continuationManager } from '@kit.AbilityKit';
 import { util } from '@kit.ArkTS';
+import { preferences } from '@kit.ArkData';
+import { auth } from '../utils/auth';
 
 @Component
 export struct MainItem {
   @State title: string | Resource = '';
-  @State tag: string | Resource = '';
-  @State label: string = '';
   @State isTouched: boolean = false;
-  @LocalStorageLink('selectedLabel') selectedLabel: string = '';
-  @LocalStorageProp('isSplitMode') isSplitMode: boolean = false;
+  @BuilderParam right: (() => void) = this.rightIcon;
+
+  @Builder
+  rightIcon() {
+    SymbolGlyph($r('sys.symbol.chevron_right'))
+      .fontSize(20)
+      .margin({ left: 4 })
+      .fontColor([$r('sys.color.ohos_id_color_fourth')])
+  }
 
   isActivated(): boolean {
-    if (this.isSplitMode) {
-      return this.label !== '' && this.label === this.selectedLabel;
-    }
     return this.isTouched;
   }
 
@@ -36,17 +39,7 @@ export struct MainItem {
 
       Blank()
 
-      Text(this.tag)
-        .fontSize(14)
-        .lineHeight(19)
-        .fontWeight(FontWeight.Regular)
-        .fontFamily('HarmonyHeiTi')
-        .fontColor($r('sys.color.ohos_id_color_text_primary'))
-
-      SymbolGlyph($r('sys.symbol.chevron_right'))
-        .fontSize(20)
-        .margin({ left: 4 })
-        .fontColor([$r('sys.color.ohos_id_color_fourth')])
+      this.right()
     }
     .alignItems(VerticalAlign.Center)
     .width('100%')
@@ -83,6 +76,16 @@ export struct ItemGroup {
 @Entry
 @Component
 struct Settings {
+  @State isAuthOpen: boolean = false
+  configPreference?: preferences.Preferences
+
+  async onPageShow(): Promise<void> {
+    this.configPreference = await preferences.getPreferences(getContext(this), {
+      name: "config"
+    })
+    this.isAuthOpen = await this.configPreference.get("isAuthOpen", false) as boolean
+  }
+
   @Builder
   CustomDivider() {
     Divider()
@@ -96,16 +99,44 @@ struct Settings {
     Navigation() {
       List({ space: 12 }) {
         ListItem() {
+          Text('本地文件导入导出备份，文件会被安全加密，因此只能使用轻令牌导入')
+            .fontSize(13)
+            .fontColor($r('sys.color.font_secondary'))
+        }.padding({
+          top: 12
+        })
+
+        ListItem() {
           ItemGroup() {
             MainItem({
-              title: '导出令牌',
+              title: '导出令牌文件',
             })
               .onClick(() => this.export())
             this.CustomDivider()
             MainItem({
-              title: '导入令牌',
+              title: '导入令牌文件',
             })
               .onClick(() => this.import())
+          }
+        }
+
+        ListItem() {
+          Text('开启安全认证后，每次打开服务都需要通过人脸、指纹或密码验证身份（解锁设备1分钟内不会要求验证）')
+            .fontSize(13)
+            .fontColor($r('sys.color.font_secondary'))
+        }.padding({
+          top: 26
+        })
+
+        ListItem() {
+          ItemGroup() {
+            MainItem({
+              title: '安全认证',
+              right: this.AuthToggle,
+            })
+              .onClick(async () => {
+                await this.toggleAuth()
+              })
           }
         }
       }
@@ -116,6 +147,25 @@ struct Settings {
     .title('设置')
     .titleMode(NavigationTitleMode.Mini)
     .backgroundColor($r('sys.color.comp_background_gray'))
+  }
+
+  @LocalBuilder
+  AuthToggle() {
+    Toggle({ type: ToggleType.Switch, isOn: this.isAuthOpen })
+      .onClick(async () => {
+        await this.toggleAuth()
+      })
+  }
+
+  private async toggleAuth() {
+    this.isAuthOpen = !this.isAuthOpen
+    if (this.isAuthOpen && !await auth(this.getUIContext())) {
+      this.isAuthOpen = false
+      return;
+    }
+
+    await this.configPreference?.put('isAuthOpen', this.isAuthOpen)
+    await this.configPreference?.flush()
   }
 
   private fileUrlPrefix = "file://docs/storage/Users/currentUser/";

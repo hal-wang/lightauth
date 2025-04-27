@@ -11,6 +11,10 @@
     {
       "name": "camera_reason",
       "value": "扫码二维码添加令牌"
+    },
+    {
+      "name": "biometric_reason",
+      "value": "验证身份以通过安全认证"
     }
   ]
 }
