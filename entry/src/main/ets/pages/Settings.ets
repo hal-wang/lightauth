@@ -7,6 +7,7 @@ import { TOTP, URI } from "../utils/otpauth";
 import { util } from '@kit.ArkTS';
 import { preferences } from '@kit.ArkData';
 import { auth } from '../utils/auth';
+import { router } from '@kit.ArkUI';
 
 @Component
 export struct MainItem {
@@ -143,6 +144,26 @@ struct Settings {
               })
           }
         }
+
+        ListItem() {
+          ItemGroup() {
+            MainItem({
+              title: '功能介绍',
+            })
+              .onClick(() => {
+                router.pushUrl({ url: 'pages/Functions' })
+              })
+            this.CustomDivider()
+            MainItem({
+              title: '关于我们',
+            })
+              .onClick(() => {
+                router.pushUrl({ url: 'pages/About' })
+              })
+          }
+        }.padding({
+          top: 8,
+        })
       }
       .padding(16)
       .width('100%')
