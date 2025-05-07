@@ -155,10 +155,10 @@ struct Settings {
               })
             this.CustomDivider()
             MainItem({
-              title: '关于我们',
+              title: '帮助',
             })
               .onClick(() => {
-                router.pushUrl({ url: 'pages/About' })
+                router.pushUrl({ url: 'pages/Help' })
               })
           }
         }.padding({
