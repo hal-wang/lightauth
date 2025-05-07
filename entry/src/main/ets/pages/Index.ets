@@ -379,7 +379,8 @@ struct Index {
               })
           }
           .swipeAction({
-            end: this.SwipeActions(index),
+            start: this.StartSwipeActions(index),
+            end: this.EndSwipeActions(index),
           })
           .onClick(async () => {
             try {
@@ -412,17 +413,79 @@ struct Index {
   }
 
   @Builder
-  SwipeActions(index: number) {
+  StartSwipeActions(index: number) {
+    Row() {
+      Button() {
+        SymbolGlyph($r('sys.symbol.arrow_up'))
+          .fontColor([$r('sys.color.font_on')])
+          .fontSize(26)
+      }
+      .width(46)
+      .height('100%')
+      .type(ButtonType.Circle)
+      .backgroundColor($r('sys.color.ohos_fa_activated'))
+      .margin({
+        left: 10,
+      })
+      .enabled(index > 0)
+      .onClick(async () => {
+        this.scroller.closeAllSwipeActions()
+        if (index <= 0) {
+          return;
+        }
+        const items = storage.appItems.splice(index, 1)
+        if (!items[0]) {
+          return;
+        }
+        storage.appItems.splice(index - 1, 0, items[0])
+        await storage.save()
+        this.updateList()
+      })
+
+      Button() {
+        SymbolGlyph($r('sys.symbol.arrow_down'))
+          .fontColor([$r('sys.color.font_on')])
+          .fontSize(26)
+      }
+      .width(46)
+      .height('100%')
+      .type(ButtonType.Circle)
+      .backgroundColor($r('sys.color.ohos_fa_activated'))
+      .margin({
+        left: 10,
+      })
+      .enabled(index < this.appItems.length - 1)
+      .onClick(async () => {
+        this.scroller.closeAllSwipeActions()
+        if (index >= storage.appItems.length - 1) {
+          return;
+        }
+        const items = storage.appItems.splice(index, 1)
+        if (!items[0]) {
+          return;
+        }
+        storage.appItems.splice(index + 1, 0, items[0])
+        await storage.save()
+        this.updateList()
+      })
+    }
+  }
+
+  @Builder
+  EndSwipeActions(index: number) {
     Row() {
       Button() {
         SymbolGlyph($r('sys.symbol.square_and_pencil'))
           .fontColor([$r('sys.color.font_on')])
           .fontSize(26)
       }
-      .width(60)
+      .width(46)
       .height('100%')
-      .type(ButtonType.Normal)
+      .type(ButtonType.Circle)
       .backgroundColor($r('sys.color.ohos_fa_activated'))
+      .margin({
+        right: 10,
+      })
       .onClick(() => {
         this.scroller.closeAllSwipeActions()
         this.editIndex = index
@@ -434,10 +497,13 @@ struct Index {
           .fontColor([$r('sys.color.font_on')])
           .fontSize(26)
       }
-      .width(60)
+      .width(46)
       .height('100%')
-      .type(ButtonType.Normal)
+      .type(ButtonType.Circle)
       .backgroundColor($r('sys.color.warning'))
+      .margin({
+        right: 10,
+      })
       .onClick(async () => {
         this.scroller.closeAllSwipeActions()
         const res = await this.getUIContext().getPromptAction().showDialog({
