@@ -60,7 +60,9 @@
         name: "ohos.permission.CAMERA",
         reason: "$string:camera_reason",
         usedScene: {
-          abilities: ["EntryAbility"],
+          abilities: [
+            "EntryAbility"
+          ],
           when: "inuse",
         },
       },
@@ -68,9 +70,26 @@
         name: "ohos.permission.ACCESS_BIOMETRIC",
         reason: "$string:biometric_reason",
         usedScene: {
-          abilities: ["EntryAbility"],
+          abilities: [
+            "EntryAbility"
+          ],
           when: "inuse",
         },
+      }
+    ],
+    "extensionAbilities": [
+      {
+        "name": "EntryFormAbility",
+        "srcEntry": "./ets/entryformability/EntryFormAbility.ets",
+        "label": "$string:EntryFormAbility_label",
+        "description": "$string:EntryFormAbility_desc",
+        "type": "form",
+        "metadata": [
+          {
+            "name": "ohos.extension.form",
+            "resource": "$profile:form_config"
+          }
+        ]
       }
     ]
   }

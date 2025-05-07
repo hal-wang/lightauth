@@ -2,11 +2,11 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "module description"
+      "value": "轻令牌"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "description"
+      "value": "轻令牌"
     },
     {
       "name": "camera_reason",
@@ -15,6 +15,22 @@
     {
       "name": "biometric_reason",
       "value": "验证身份以通过安全认证"
+    },
+    {
+      "name": "EntryFormAbility_desc",
+      "value": "轻令牌卡片"
+    },
+    {
+      "name": "EntryFormAbility_label",
+      "value": "轻令牌"
+    },
+    {
+      "name": "widget_desc",
+      "value": "支持常见 MFA/2FA 身份认证令牌，如华为云、阿里云等。"
+    },
+    {
+      "name": "widget_display_name",
+      "value": "轻令牌"
     }
   ]
 }

@@ -60,7 +60,11 @@ export struct MainItem {
 
 @Component
 export struct ItemGroup {
-  @BuilderParam noParam: () => void;
+  @BuilderParam noParam: () => void = this.DefaultParam;
+
+  @Builder
+  DefaultParam() {
+  }
 
   build() {
     Column() {
