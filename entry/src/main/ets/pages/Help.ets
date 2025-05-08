@@ -2,7 +2,7 @@ import { intl } from '@kit.LocalizationKit';
 
 @Entry
 @Component
-struct Functions {
+struct Help {
   @State time: string = ''
   interval?: number;
 

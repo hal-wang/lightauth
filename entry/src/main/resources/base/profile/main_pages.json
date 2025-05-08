@@ -3,6 +3,7 @@
     "pages/Index",
     "pages/Settings",
     "pages/Functions",
-    "pages/Help"
+    "pages/Help",
+    "pages/OpenSource"
   ]
 }

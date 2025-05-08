@@ -160,6 +160,13 @@ struct Settings {
               .onClick(() => {
                 router.pushUrl({ url: 'pages/Help' })
               })
+            this.CustomDivider()
+            MainItem({
+              title: '开源信息',
+            })
+              .onClick(() => {
+                router.pushUrl({ url: 'pages/OpenSource' })
+              })
           }
         }.padding({
           top: 8,
