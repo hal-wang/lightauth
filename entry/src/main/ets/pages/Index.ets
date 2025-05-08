@@ -1,6 +1,5 @@
 import { BusinessError, pasteboard } from '@kit.BasicServicesKit';
-import { router } from '@kit.ArkUI';
-import { SymbolGlyphModifier, CustomContentDialog } from '@kit.ArkUI';
+import { SymbolGlyphModifier, CustomContentDialog, router } from '@kit.ArkUI';
 import { scanBarcode, scanCore } from '@kit.ScanKit';
 import { storage } from '../utils/storage'
 import { TOTP, URI } from "../utils/otpauth";
@@ -406,6 +405,7 @@ struct Index {
     .title($r('app.string.app_name'))
     .menus(this.menuItems)
     .hideBackButton(true)
+    .mode(NavigationMode.Stack)
     .backgroundColor($r('sys.color.comp_background_gray'))
     .onClick(() => {
       this.scroller.closeAllSwipeActions()

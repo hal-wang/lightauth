@@ -61,6 +61,7 @@ struct Functions {
     }
     .title('帮助')
     .titleMode(NavigationTitleMode.Mini)
+    .mode(NavigationMode.Stack)
     .backgroundColor($r('sys.color.comp_background_gray'))
   }
 }

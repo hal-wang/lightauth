@@ -171,6 +171,7 @@ struct Settings {
     }
     .title('设置')
     .titleMode(NavigationTitleMode.Mini)
+    .mode(NavigationMode.Stack)
     .backgroundColor($r('sys.color.comp_background_gray'))
   }
 
