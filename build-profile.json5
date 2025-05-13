@@ -18,13 +18,13 @@
         "name": "release",
         "type": "HarmonyOS",
         "material": {
-          "storeFile": "C:/dev/h/lightauth/cert/release.p12",
-          "storePassword": "000000189469CFFFAB05A4449A1A2704579BDE9FBBED80D3D9D4FEC461C40B0E511665F3D7164E9E",
+          "storeFile": "C:/dev/h/lightauth/cert/lightauth.p12",
+          "storePassword": "00000018C53C97CE441ED463CACB31296D9A5CCE648C0985B727A4ABD919AF187F90394C3EDD6542",
           "keyAlias": "release",
-          "keyPassword": "00000018CCA5E25986BE5625DB39E5D08CA872C350B14FAAFA48F3664B6F95581E00F97D70F01B85",
+          "keyPassword": "00000018EB21969D39442866AF55BD2B3E929061E4BB07FB9EFF97FA71700A92DF2B86A6F9946E79",
           "signAlg": "SHA256withECDSA",
-          "profile": "C:/dev/h/lightauth/cert/releaseRelease.p7b",
-          "certpath": "C:/dev/h/lightauth/cert/release.cer"
+          "profile": "C:/dev/h/lightauth/cert/lightauthRelease.p7b",
+          "certpath": "C:/dev/h/lightauth/cert/lightauth.cer"
         }
       }
     ],
